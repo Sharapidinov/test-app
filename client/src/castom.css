@@ -1,0 +1,50 @@
+.radio-inp {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+
+    border: 2px solid #999;
+    transition: 0.2s all linear;
+    outline: none;
+    margin-right: 5px;
+
+    position: relative;
+    top: 4px;
+}
+
+.radio-inp:checked {
+    border: 6px solid black;
+}
+
+a{
+    text-decoration: none;
+    color:grey;
+}
+
+.header-bg{
+    background: bisque;
+}
+.bg-list{
+    background: #999999;
+    list-style: none;
+}
+
+.bg-card{
+    background: rgba(210, 215, 211, 0.6);
+}
+.box{
+    background:  grey;
+    border-radius: 20px;
+}
+.bg-brown{
+    padding-top: 20px;
+    background: #948572;
+    min-height: 87.5vh;
+}
+.bg-test{
+    background: #cec599;
+}
