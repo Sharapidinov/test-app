@@ -8,7 +8,6 @@ export const testGet = (req, res) => {
 
     Test.find({name}, (err, data) => {
         if (err) return res.status(400).json({message:"error", err})
-        console.log(data)
         res.json(data)
     } )
 
@@ -60,7 +59,6 @@ export const checkTest = (req, res) => {
 
 export const getAllTests = (req, res) => {
     Test.find({}, (err, data) => {
-        console.log(data)
         if (err) return res.status(400).json({message:"error", err})
         res.json(data)
     } )

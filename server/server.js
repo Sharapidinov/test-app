@@ -20,7 +20,7 @@ server.use("/api/tests", testRoutes)
 
 
 server.use(express.static("client/build"))
-server.use('*', (req, res) => {
+server.get('*', (req, res) => {
     res.sendFile(path.resolve('client/build/index.html'))
 })
 
