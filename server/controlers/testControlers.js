@@ -1,78 +1,78 @@
 import {nanoid} from "nanoid";
 import {readFile, writeFile, stat,readdir} from "fs/promises"
-
+import mongoose from "../service/mongoose.js";
+import Test from "../models/newTestModel.js";
 
 export const testGet = (req, res) => {
     const {name} = req.params
 
+    Test.find({name}, (err, data) => {
+        if (err) return res.status(400).json({message:"error", err})
+        console.log(data)
+        res.json(data)
+    } )
 
-    readFile(`./data/${name}.json`, 'utf8').then(data => {
-        const test = JSON.parse(data)
-        test.map(it => delete it.rightAnswer)
-        res.json(test)
-    })
 }
 
 export const testPost = (req, res) => {
     const {name} = req.params
+    const newTest = new Test({
+        name,
+        questions: req.body
+    })
 
-    stat(`./data/${name}.json`)
-        .then(() => res.json({massage: "pleas choose another name"}))
-        .catch(() => {
-            let test = req.body.map(it =>({...it, id: nanoid(6)}))
+    newTest.save((err,data) => {
+        if (err) return res.status(400).json({message:"error", err})
 
-            writeFile(`./data/${name}.json`, JSON.stringify(test), "utf-8").catch((e) => res.json(e))
-                .then(() => res.json({massage: "successful"}))
-                .catch((err) => res.json({massage: "error" , err}))
-        })
+        res.json(data)
+    })
+
 }
 
 export const checkTest = (req, res) => {
     const {name} = req.params
-    const {username} = req.query
     const answers = req.body
     let totalPoints = 0
 
-    readFile(`./data/${name}.json`, "utf-8")
-        .then(data => {
-            const result = JSON.parse(data).map(quest => {
-                const currentQuest = answers.find(it => it.id === quest.id)
-                quest.res = quest.rightAnswer === currentQuest?.userAnswer
-                if(quest.res) {
-                    totalPoints += quest.points
-                }
-                return quest
 
-             })
+    Test.findOne({name}, (err, test) => {
+        if (err) return res.status(400).json({message:"error", err})
+        if (!test) return res.status(400).json({message:"undefind", err})
 
-            const  response = {
-                totalPoints,
-                result
-            }
-            res.json(response)
+        const results = test.questions.map(it => {
+                        const quest = {...it.toObject() }
+                        const currentQuest = answers.find(it => it._id === String(quest._id))
+                        quest.result = quest.rightAnswer === currentQuest.userAnswer
+                        if(quest.result) {
+                            totalPoints += quest.points
+                        }
+                        return quest
 
-            readFile(`./server/data/points-table.json`, "utf-8")
-                .then(data => {
-                    const pointsTable = JSON.parse(data)
-                    pointsTable.push({
-                        id: nanoid(6),
-                        username,
-                        test: name,
-                        totalPoints
-                    })
-                    writeFile("./server/data/points-table.json", JSON.stringify(pointsTable) , "utf-8")
-                })
-        })
+                     })
+
+                    const  response = {
+                        totalPoints,
+                        results
+                    }
+                    res.json(response)
+    })
 }
 
 export const getAllTests = (req, res) => {
-    readdir(`./data`)
-        .then(files => {
-            const result = files
-                .filter(it => it !== `points-table.json`)
-                .map(it => it.replace(/\.json$/, ""))
+    Test.find({}, (err, data) => {
+        console.log(data)
+        if (err) return res.status(400).json({message:"error", err})
+        res.json(data)
+    } )
 
-            res.json(result)
-        }).catch(err => res.json({message: "Error", err}))
+
+    // readdir(`./data`)
+    //     .then(files => {
+    //         const result = files
+    //             .filter(it => it !== `points-table.json`)
+    //             .map(it => it.replace(/\.json$/, ""))
+    //
+    //         res.json(result)
+    //     }).catch(err => res.json({message: "Error", err}))
 }
 
